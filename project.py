@@ -56,40 +56,45 @@ def exitClause() -> bool:
     return yORn(input(MSG), MSG)
 
 
-def getLength(pa: password):
-        MSG = "How long is your desired password?\n"
-        pa.passLen = tryInt(input(MSG), MSG)
+def getLength(pa: password, looped: bool = False):
+        while (pa.passLen <= pa.passNum ) or (pa.passLen <= pa.passChar):
+            if not looped:
+                MSG = "How long is your desired password?\n"
+            else:
+                MSG = f"What's the new password length? (must be larger than {pa.passNum})\n"
+            pa.passLen = tryInt(input(MSG), MSG)
 
 
 def haveNumbers(pa: password):
     MSG = "Would you like your password to contain numbers? (y/n)\n"
     if yORn(input(MSG), MSG):
-        pa.passNum = getNumbers(pa)
+        getNumbers(pa)
     else:
         pa.passNum = 0
 
 
-def getNumbers(pa: password) -> int:
+def getNumbers(pa: password):
     while True:
         MSG = "How many numbers would you like?\n"
         numberCount = tryInt(input(MSG), MSG)
         if numberCount > pa.passLen:
             LARGER_MSG = ("The number count is larger than the password length\n"
                 "would you like to change the password length to match the number count? (y/n)\n")
-            modifyLength(pa, numberCount, LARGER_MSG)
-            return numberCount
+            pa.passNum = numberCount
+            modifyLength(pa, numberCount, LARGER_MSG, getNumbers)
+            break
         else:
-            return numberCount
+            pa.passNum = numberCount
+            break
 
 
-def modifyLength(pa: password, largerValue: int, msg: str):
+def modifyLength(pa: password, largerValue: int, msg: str, sender):
     while pa.passLen <= largerValue:
         if yORn(input(msg), msg):
-            return getLength(pa) 
+            return getLength(pa, looped=True) 
         else:
-            #problem Here
-            #if no to modifying passLen, passNum > passLen
-            return pa.passLen
+            sender(pa)
+            
 
 
 def yORn(inp: str, msg: str) -> bool:
