@@ -43,7 +43,6 @@ def main():
         except KeyboardInterrupt:
             if exitClause() == True:
                 sysExit()
-    createPass(p)
     return 0
 
 
