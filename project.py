@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import randint, choice, sample
 import string
 from sys import exit as sysExit
 
@@ -38,11 +38,12 @@ def main():
     while True:
         try:
             collectData(p)
+            writeToFile(p, numberOfPasswords())
             break
         except KeyboardInterrupt:
             if exitClause() == True:
                 sysExit()
-    total(p)
+    createPass(p)
     return 0
 
 
@@ -53,18 +54,38 @@ def collectData(pa: password):
     passCheck(pa)
 
 
-def total(pa: password):
-    print("L", pa.passLen)
-    print("N", pa.passNum)
-    print("C", pa.passChar)
+def createPass(pa: password) -> str:
     result = ""
     for _ in range(pa.passNum):
         result += "".join(str(randint(0, 9)))
     for _ in range(pa.passChar):
         result += "".join(choice(string.punctuation))
     for _ in range(pa.passLen - (pa.passChar + pa.passNum)):
-        ...
-    print(result)
+        result += "".join(choice(string.ascii_letters))
+    return ''.join(sample(result, len(result)))
+
+
+def numberOfPasswords() -> int:
+    while True:
+        try:
+            inp = int(input("how many of the specified password do you want to print to file?\n"))
+            
+            if inp <= 0:
+                print("please enter at least 1 or more!")
+                return numberOfPasswords()
+            
+            return inp
+        except ValueError:
+            return numberOfPasswords()
+
+
+def writeToFile(pa:password, num: int):
+    with open("passwords.txt", 'w+') as file:
+        for _ in range(num):
+            file.write(f"{createPass(pa)}\n")
+        file.close()
+        print("Process Finished!")
+
 
 def exitClause() -> bool:
     MSG = "Would you like to exit the program? [Y]es / [N]o\n"
@@ -188,7 +209,7 @@ def yORn(inp: str, msg: str) -> bool:
                 return yORn(input(msg), msg)
                 
 
-def tryInt(inp: str, msg: str):
+def tryInt(inp: str, msg: str) -> int:
     while True:
         try:
             inp = int(inp)
