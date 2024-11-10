@@ -39,6 +39,7 @@ def main():
         try:
             getLength(p)
             haveNumbers(p)
+            haveChars(p)
             break
         except KeyboardInterrupt:
             if exitClause() == True:
@@ -52,7 +53,7 @@ def total(pa: password):
 
 
 def exitClause() -> bool:
-    MSG = "Would you like to exit the program? (y/n)\n"
+    MSG = "Would you like to exit the program? [Y]es / [N]o\n"
     return yORn(input(MSG), MSG)
 
 
@@ -61,12 +62,12 @@ def getLength(pa: password, looped: bool = False):
             if not looped:
                 MSG = "How long is your desired password?\n"
             else:
-                MSG = f"What's the new password length? (must be larger than {pa.passNum})\n"
+                MSG = f"What's the new password length? (must be larger than {pa.passChar or pa.passNum})\n"
             pa.passLen = tryInt(input(MSG), MSG)
 
 
 def haveNumbers(pa: password):
-    MSG = "Would you like your password to contain numbers? (y/n)\n"
+    MSG = "Would you like your password to contain numbers? [Y]es / [N]o\n"
     if yORn(input(MSG), MSG):
         getNumbers(pa)
     else:
@@ -79,7 +80,7 @@ def getNumbers(pa: password):
         numberCount = tryInt(input(MSG), MSG)
         if numberCount > pa.passLen:
             LARGER_MSG = ("The number count is larger than the password length\n"
-                "would you like to change the password length to match the number count? (y/n)\n")
+                "would you like to change the password length to match the number count? [Y]es / [N]o\n")
             pa.passNum = numberCount
             modifyLength(pa, numberCount, LARGER_MSG, getNumbers)
             break
@@ -88,14 +89,37 @@ def getNumbers(pa: password):
             break
 
 
+def haveChars(pa: password):
+    MSG = "Would you like your password to contain special characters? [Y]es / [N]o\n"
+    if yORn(input(MSG), MSG):
+        getChars(pa)
+    else:
+        pa.passChar = 0
+
+
+def getChars(pa: password):
+    while True:
+        MSG = "How many special characters would you like?\n"
+        charCount = tryInt(input(MSG), MSG)
+        if charCount > pa.passLen:
+            LARGER_MSG = ("The number of special characters is larger than the password length\n"
+                "would you like to change the password length to match the number count? [Y]es / [N]o\n")
+            pa.passChar = charCount
+            modifyLength(pa, charCount, LARGER_MSG, getNumbers)
+            break
+        else:
+            pa.passChar = charCount
+            break
+
+
 def modifyLength(pa: password, largerValue: int, msg: str, sender):
     while pa.passLen <= largerValue:
         if yORn(input(msg), msg):
-            return getLength(pa, looped=True) 
+            return getLength(pa, True) 
         else:
             sender(pa)
+            break
             
-
 
 def yORn(inp: str, msg: str) -> bool:
     inp = inp.strip().lower()
