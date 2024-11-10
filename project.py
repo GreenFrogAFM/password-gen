@@ -1,4 +1,4 @@
-import random
+from random import randint, choice
 import string
 from sys import exit as sysExit
 
@@ -37,20 +37,34 @@ def main():
     p = password(0, 0, 0)
     while True:
         try:
-            getLength(p)
-            haveNumbers(p)
-            haveChars(p)
+            collectData(p)
             break
         except KeyboardInterrupt:
             if exitClause() == True:
                 sysExit()
     total(p)
+    return 0
+
+
+def collectData(pa: password):
+    getLength(pa)
+    haveNumbers(pa)
+    haveChars(pa)
+    passCheck(pa)
+
 
 def total(pa: password):
-    print(f"pass len: {pa.passLen}")
-    print(f"pass num: {pa.passNum}")
-    print(f"pass char: {pa.passChar}")
-
+    print("L", pa.passLen)
+    print("N", pa.passNum)
+    print("C", pa.passChar)
+    result = ""
+    for _ in range(pa.passNum):
+        result += "".join(str(randint(0, 9)))
+    for _ in range(pa.passChar):
+        result += "".join(choice(string.punctuation))
+    for _ in range(pa.passLen - (pa.passChar + pa.passNum)):
+        ...
+    print(result)
 
 def exitClause() -> bool:
     MSG = "Would you like to exit the program? [Y]es / [N]o\n"
@@ -64,6 +78,7 @@ def getLength(pa: password, looped: bool = False):
             else:
                 MSG = f"What's the new password length? (must be larger than {pa.passChar or pa.passNum})\n"
             pa.passLen = tryInt(input(MSG), MSG)
+            break
 
 
 def haveNumbers(pa: password):
@@ -74,10 +89,16 @@ def haveNumbers(pa: password):
         pa.passNum = 0
 
 
-def getNumbers(pa: password):
+def getNumbers(pa: password, looped: bool = False):
     while True:
-        MSG = "How many numbers would you like?\n"
-        numberCount = tryInt(input(MSG), MSG)
+        if not looped:
+            MSG = "How many numbers would you like?\n"
+            numberCount = tryInt(input(MSG), MSG)
+        else:
+            MSG = (f"How many special character would you like?\n"
+            f"must be equal or less than {pa.passLen - pa.passChar}\n")
+            numberCount = tryInt(input(MSG), MSG)
+        
         if numberCount > pa.passLen:
             LARGER_MSG = ("The number count is larger than the password length\n"
                 "would you like to change the password length to match the number count? [Y]es / [N]o\n")
@@ -97,10 +118,17 @@ def haveChars(pa: password):
         pa.passChar = 0
 
 
-def getChars(pa: password):
+def getChars(pa: password, looped: bool = False):
     while True:
-        MSG = "How many special characters would you like?\n"
-        charCount = tryInt(input(MSG), MSG)
+
+        if not looped:
+            MSG = "How many special characters would you like?\n"
+            charCount = tryInt(input(MSG), MSG)
+        else:
+            MSG = (f"How many special character would you like?\n"
+            f"must be equal or less than {pa.passLen - pa.passNum}\n")
+            charCount = tryInt(input(MSG), MSG)
+
         if charCount > pa.passLen:
             LARGER_MSG = ("The number of special characters is larger than the password length\n"
                 "would you like to change the password length to match the number count? [Y]es / [N]o\n")
@@ -120,6 +148,33 @@ def modifyLength(pa: password, largerValue: int, msg: str, sender):
             sender(pa)
             break
             
+
+def passCheck(pa: password):
+    while (pa.passChar > pa.passLen - pa.passNum) or (pa.passNum > pa.passLen - pa.passChar):
+        print(f"The password length will not fit all {pa.passNum} numbers\n"
+              f"and {pa.passChar} special characters!\n")
+        MSG = (f"Please Choose whether to [R]estart, change the [N]umber count or the [C]haracter count.\n")
+        passFix(pa, input(MSG), MSG)
+        break
+
+
+def passFix(pa: password, inp: str, msg: str):
+    inp = inp.strip().lower()
+    while True:
+        match inp:
+            case 'r':
+                collectData(pa)
+                break
+            case 'n':
+                getNumbers(pa, True)
+                break
+            case 'c':
+                getChars(pa, True)
+                break
+            case _:
+                passFix(input(msg), msg)
+                break
+
 
 def yORn(inp: str, msg: str) -> bool:
     inp = inp.strip().lower()
