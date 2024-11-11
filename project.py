@@ -1,6 +1,9 @@
 from random import randint, choice, sample
-import string
 from sys import exit as sysExit
+from tqdm import tqdm
+import time
+import string
+
 
 class password:
     def __init__(self, length: int, numbers: int , characters: int):
@@ -79,9 +82,11 @@ def numberOfPasswords() -> int:
 
 
 def writeToFile(pa:password, num: int):
+    pbar = tqdm(range(num))
     with open("passwords.txt", 'w+') as file:
-        for _ in range(num):
+        for password in pbar:
             file.write(f"{createPass(pa)}\n")
+            pbar.set_description(f"Creating Password {password + 1}/{num}...")
         file.close()
         print("Process Finished!")
 

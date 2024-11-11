@@ -4,3 +4,4 @@ requirements.txt
 tempCodeRunnerFile.py
 test_project.py
 *.txt
+.venv
