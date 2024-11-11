@@ -4,7 +4,6 @@ from tqdm import tqdm
 import time
 import string
 
-
 class password:
     def __init__(self, length: int, numbers: int , characters: int):
         self.length = length
